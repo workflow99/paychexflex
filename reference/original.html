@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PayFlex Portal</title>
+<style>
+  :root{
+    --blue:#0066b2;
+    --blue-dark:#005a9e;
+    --bg:#f0f2f5;
+    --card:#ffffff;
+    --text:#1a1a1a;
+    --muted:#666666;
+    --border:#e0e0e0;
+    --skeleton:#eef1f5;
+    --green:#4caf50;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  html,body{height:100%;background:#111}
+  #app-frame{
+    max-width:480px;
+    margin:0 auto;
+    background:var(--bg);
+    min-height:100vh;
+    position:relative;
+    overflow-x:hidden;
+    box-shadow:0 0 40px rgba(0,0,0,.6);
+  }
+  @media(min-width:520px){
+    body{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);display:flex;align-items:center;justify-content:center;padding:20px}
+    #app-frame{min-height:90vh;height:auto;border-radius:12px;overflow:hidden;border:8px solid #222}
+  }
+
+  /* Header */
+  .header{
+    background:var(--blue);color:#fff;padding:0 16px;height:56px;display:flex;align-items:center;justify-content:space-between;
+    position:sticky;top:0;z-index:100;box-shadow:0 2px 4px rgba(0,0,0,.1)
+  }
+  .header-left,.header-right{display:flex;align-items:center;gap:6px}
+  .icn-btn{
+    background:none;border:none;color:#fff;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;
+  }
+  .logo{font-size:20px;font-weight:800;font-style:italic;letter-spacing:.5px}
+  .avatar{
+    width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.25);color:#fff;display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:12px;border:2px solid rgba(255,255,255,.4)
+  }
+  .mail-wrap{position:relative}
+  .badge{
+    position:absolute;top:6px;right:6px;width:8px;height:8px;background:#ff3b30;border-radius:50%;border:2px solid var(--blue)
+  }
+
+  /* Company bar */
+  .co-bar{
+    background:#fff;padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)
+  }
+  .co-icon{
+    width:36px;height:36px;background:#e8eaf6;color:#5c6bc0;border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px
+  }
+  .co-info{flex:1}
+  .co-name{font-weight:600;font-size:15px;color:var(--text)}
+  .co-id{font-size:12px;color:var(--muted)}
+  .chev{color:var(--muted);font-size:12px}
+
+  /* Drawer */
+  .drawer-overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:150;opacity:0;pointer-events:none;transition:opacity .25s ease;
+  }
+  .drawer-overlay.open{opacity:1;pointer-events:all}
+  .drawer{
+    position:fixed;top:0;left:0;width:280px;height:100%;background:#fff;z-index:200;
+    transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1);overflow-y:auto;display:flex;flex-direction:column;
+  }
+  .drawer.open{transform:translateX(0)}
+  .drawer-head{
+    background:var(--blue);color:#fff;padding:18px 16px;display:flex;align-items:center;justify-content:space-between
+  }
+  .drawer-section{padding:8px 0}
+  .drawer-label{padding:8px 16px;font-size:11px;text-transform:uppercase;color:var(--muted);font-weight:700;letter-spacing:.6px}
+  .drawer-item{
+    padding:13px 16px;display:flex;align-items:center;gap:14px;font-size:15px;color:var(--text);cursor:pointer;position:relative;
+  }
+  .drawer-item:active{background:#f5f5f5}
+  .drawer-item.active{background:#f0f7ff;color:var(--blue)}
+  .drawer-item svg{width:22px;height:22px;opacity:.7}
+  .drawer-item.active svg{opacity:1}
+  .drawer-hr{height:1px;background:var(--border);margin:8px 16px}
+
+  /* Pages */
+  .page{display:none;animation:fade .25s ease}
+  .page.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+  /* Login */
+  .login-page{background:#fff;min-height:100vh}
+  .login-head{background:var(--blue);padding:28px 16px 32px;text-align:center;color:#fff}
+  .login-logo{font-size:28px;font-weight:800;font-style:italic;letter-spacing:1px}
+  .login-body{padding:24px 16px 40px}
+  .field{margin-bottom:22px}
+  .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:500}
+  .field input{
+    width:100%;border:none;border-bottom:1px solid #bbb;padding:8px 0;font-size:16px;outline:none;background:transparent;
+  }
+  .field input:focus{border-bottom-color:var(--blue)}
+  .inp-wrap{position:relative}
+  .eye{
+    position:absolute;right:0;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;padding:4px;font-size:18px
+  }
+  .btn{
+    width:100%;padding:14px;background:#bdbdbd;color:#fff;border:none;border-radius:4px;font-size:16px;font-weight:600;cursor:pointer;margin-top:4px
+  }
+  .btn.on{background:var(--blue)}
+  .login-links{display:flex;justify-content:space-between;margin-top:20px;font-size:14px}
+  .login-links a{color:var(--blue);text-decoration:none}
+  .signup{text-align:center;margin-top:24px;font-size:14px;color:var(--muted)}
+  .signup a{color:var(--blue);font-weight:600}
+  .legal{margin-top:32px;font-size:11px;color:var(--muted);line-height:1.5;text-align:center}
+  .legal a{color:var(--blue)}
+
+  /* Dashboard */
+  .dash-header{display:flex;justify-content:space-between;align-items:flex-end;padding:20px 16px 8px}
+  .page-title{font-size:22px;font-weight:700}
+  .link{color:var(--blue);font-size:14px;font-weight:500;cursor:pointer}
+
+  /* Skeleton */
+  @keyframes shimmer{
+    0%{background-position:-200% 0}100%{background-position:200% 0}
+  }
+  .skel{
+    background:linear-gradient(90deg,var(--skeleton) 25%,#e0e0e0 50%,var(--skeleton) 75%);
+    background-size:200% 100%;animation:shimmer 1.6s infinite;border-radius:4px
+  }
+  .sk-line{height:12px;margin-bottom:10px}
+  .sk-line.sm{width:60%}
+  .sk-box{height:90px;margin:12px 16px;border-radius:8px}
+
+  /* Tiles */
+  .tile{
+    background:#fff;border:1px solid var(--border);border-radius:8px;margin:12px 16px;padding:16px;
+  }
+  .tile-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+  .tile-icn{font-size:22px;width:28px;text-align:center}
+  .tile-title{font-weight:600;font-size:16px}
+  .tile-sub{color:var(--blue);font-size:14px;margin-top:2px;cursor:pointer}
+  .empty{text-align:center;padding:24px 16px;color:var(--muted)}
+  .empty-img{font-size:48px;margin-bottom:12px;opacity:.35}
+  .empty h4{color:var(--text);font-size:15px;margin-bottom:4px}
+  .empty p{font-size:13px;margin-bottom:8px}
+  .empty a{color:var(--blue);font-size:14px;text-decoration:none}
+
+  .timeline .row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);font-size:15px}
+  .timeline .row:last-child{border-bottom:none}
+  .muted{color:var(--muted)}
+  .event{display:flex;gap:12px;padding:10px 0;align-items:center}
+  .event-date{width:36px;text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;line-height:1.2}
+  .event-txt{font-size:15px}
+
+  /* Tabs */
+  .tabs{display:flex;border-bottom:1px solid var(--border);background:#fff}
+  .tab{flex:1;text-align:center;padding:14px 4px;font-size:14px;color:var(--muted);cursor:pointer;font-weight:500;position:relative}
+  .tab.active{color:var(--blue)}
+  .tab.active::after{content:"";position:absolute;bottom:0;left:20%;right:20%;height:2px;background:var(--blue);border-radius:2px}
+
+  /* Horizontal scroll tabs */
+  .htabs{display:flex;overflow-x:auto;gap:22px;padding:0 16px;background:#fff;border-bottom:1px solid var(--border);scrollbar-width:none}
+  .htabs::-webkit-scrollbar{display:none}
+  .htab{white-space:nowrap;padding:14px 2px;font-size:14px;color:var(--muted);cursor:pointer;font-weight:500;border-bottom:2px solid transparent;margin-bottom:-1px}
+  .htab.active{color:var(--blue);border-bottom-color:var(--blue)}
+
+  /* Profile */
+  .prof-card{padding:20px 16px}
+  .prof-head{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+  .prof-ava{
+    width:56px;height:56px;border-radius:50%;background:#e8eaf6;color:#5c6bc0;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700
+  }
+  .edit{float:right;padding:6px 16px;border:1px solid var(--border);background:#fff;border-radius:4px;font-size:13px;cursor:pointer;color:var(--text)}
+  .row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);font-size:15px;align-items:flex-start}
+  .row label{color:var(--muted);padding-right:12px}
+  .row span{text-align:right}
+  .ecard{display:flex;align-items:center;gap:12px;margin-top:8px}
+  .ecard .ava{width:40px;height:40px;font-size:14px;background:var(--blue);color:#fff}
+
+  /* Pay */
+  .pay{padding:16px}
+  .rate-badge{display:inline-block;padding:2px 10px;border:1px solid var(--border);border-radius:12px;font-size:12px;color:var(--muted);margin-left:8px;vertical-align:middle}
+  .pay .row{display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border);font-size:15px}
+  .pay .row .amt{font-weight:600}
+  .sec-title{font-weight:700;margin:24px 0 12px;font-size:16px}
+  .info-box{background:#f0f7ff;border-left:4px solid var(--blue);padding:12px;margin-bottom:16px;font-size:13px;color:var(--muted);display:flex;gap:8px;line-height:1.4}
+  .hist{padding:16px;border-bottom:1px solid var(--border);cursor:pointer}
+  .hist-date{font-size:14px;color:var(--muted);margin-bottom:4px}
+  .hist-rate{font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .sub{font-size:13px;color:var(--muted);margin-top:4px}
+  .promo{background:#f0f7ff;border-radius:8px;padding:16px;margin-bottom:20px}
+  .promo h4{margin-bottom:4px}
+  .promo p{font-size:13px;color:var(--muted);margin-bottom:12px}
+  .promo button{padding:8px 16px;border:1px solid var(--border);background:#fff;border-radius:4px;font-size:13px;cursor:pointer}
+
+  /* Retirement */
+  .ret-bal{text-align:center;padding:24px 16px 16px}
+  .ret-bal .num{font-size:28px;font-weight:700}
+  .ret-bal .lbl{font-size:12px;color:var(--muted);margin-top:4px}
+  .donut-wrap{width:200px;height:200px;margin:16px auto;position:relative}
+  .donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+  .donut-center .big{font-size:18px;font-weight:700}
+  .donut-center .sml{font-size:12px;color:var(--muted)}
+  .neg{color:#d32f2f}
+  .alloc{display:flex;align-items:center;gap:8px;padding:6px 16px;font-size:14px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--blue)}
+  .perf-btn{display:inline-block;padding:6px 16px;background:var(--blue);color:#fff;border:none;border-radius:4px;font-size:13px;margin:0 16px 16px;cursor:pointer}
+
+  /* Misc pages */
+  .center-msg{text-align:center;padding:60px 24px;color:var(--muted)}
+  .center-msg svg{width:64px;height:64px;opacity:.25;margin-bottom:16px}
+  .center-msg h3{color:var(--text);font-size:16px;margin-bottom:6px}
+
+  .perk-hero{
+    background:linear-gradient(135deg,#7b4397 0%,#dc2430 100%);color:#fff;padding:24px 16px;text-align:center
+  }
+  .perk-hero h2{font-size:22px}
+  .perk-hero p{font-size:14px;opacity:.9;margin-top:4px}
+  .perk{display:flex;align-items:center;gap:16px;padding:16px;border-bottom:1px solid var(--border)}
+  .perk-logo{width:48px;height:48px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;text-align:center}
+  .perk-info h4{font-size:16px;margin-bottom:4px}
+  .perk-info p{font-size:13px;color:var(--muted);margin-bottom:8px}
+  .perk-btn{display:inline-block;padding:6px 16px;border:1px solid var(--border);border-radius:4px;font-size:13px;text-decoration:none;color:var(--text)}
+
+  .loc-card{margin:12px 16px;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+  .loc-img{height:140px;background:#e3f2fd;display:flex;align-items:center;justify-content:center;font-size:64px}
+  .loc-info{padding:16px}
+  .loc-info h4{font-size:16px;margin-bottom:4px}
+  .loc-info p{font-size:14px;color:var(--muted);line-height:1.4}
+
+  .fab{
+    position:fixed;bottom:20px;right:20px;width:48px;height:48px;background:var(--blue);color:#fff;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 12px rgba(0,0,0,.25);cursor:pointer;z-index:90;
+  }
+  @media(min-width:520px){.fab{right:50%;transform:translateX(240px)}}
+</style>
+</head>
+<body>
+
+<div id="app-frame">
+  <!-- Drawer -->
+  <div class="drawer-overlay" id="dover" onclick="toggleDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-head">
+      <span class="logo">PayFlex</span>
+      <button class="icn-btn" onclick="toggleDrawer()" style="width:auto;padding:0 4px">✕</button>
+    </div>
+    <div class="drawer-section">
+      <div class="drawer-label">Main</div>
+      <div class="drawer-item active" onclick="go('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Dashboard
+      </div>
+      <div class="drawer-item" onclick="go('profile')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        My Profile
+      </div>
+      <div class="drawer-item" onclick="go('pay')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/></svg>
+        My Pay
+      </div>
+      <div class="drawer-item" onclick="go('documents')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        My Documents
+      </div>
+      <div class="drawer-item" onclick="go('perks')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        My Perks
+      </div>
+      <div class="drawer-item" onclick="go('locations')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Company Locations
+      </div>
+      <div class="drawer-item" onclick="go('performance')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Performance
+      </div>
+      <div class="drawer-item" onclick="go('retirement')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        My Retirement
+      </div>
+    </div>
+    <div class="drawer-hr"></div>
+    <div class="drawer-section">
+      <div class="drawer-label">Other</div>
+      <div class="drawer-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Help Center
+      </div>
+      <div class="drawer-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        Chat now
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGIN -->
+  <div class="page active" id="p-login">
+    <div class="login-head">
+      <div class="login-logo">PayFlex</div>
+    </div>
+    <div class="login-body">
+      <div class="field">
+        <label>Username*</label>
+        <input type="text" id="lu" value="EddieJ.4319" oninput="ckLogin()">
+      </div>
+      <div class="field">
+        <label>Password*</label>
+        <div class="inp-wrap">
+          <input type="password" id="lp" value="password123" oninput="ckLogin()">
+          <button class="eye" onclick="togEye()">👁</button>
+        </div>
+      </div>
+      <button class="btn on" onclick="doLogin()">Log In</button>
+      <div class="login-links">
+        <a href="#">Forgot username</a>
+        <a href="#">Forgot password</a>
+      </div>
+      <div class="signup">New to PayFlex? <a href="#">Sign up</a></div>
+      <div class="legal">
+        By continuing, you agree to our <a href="#">Terms of Use</a> and <a href="#">Privacy Policy</a>, as well as our use of cookies and other technologies to support site functionality, analytics, preferences, marketing, and to improve your experience with our services. We use third party technologies that may access your information. By continuing, you consent to such use. For more information, see our Cookie Policy.
+      </div>
+    </div>
+  </div>
+
+  <!-- APP SHELL -->
+  <div id="shell" style="display:none">
+    <div class="header">
+      <div class="header-left">
+        <button class="icn-btn" onclick="toggleDrawer()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="logo">PayFlex</div>
+      <div class="header-right">
+        <button class="icn-btn mail-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <span class="badge"></span>
+        </button>
+        <div style="display:flex;align-items:center;gap:2px">
+          <div class="avatar">EJ</div>
+          <span style="font-size:10px">▼</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="co-bar">
+      <div class="co-icon">L</div>
+      <div class="co-info">
+        <div class="co-name">Lander Tubular Products Inc</div>
+        <div class="co-id">70246097</div>
+      </div>
+      <span class="chev">▼</span>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="p-dashboard">
+      <div class="dash-header">
+        <div class="page-title">Dashboard</div>
+        <div class="link">Manage Tiles</div>
+      </div>
+      <div id="dash-sk">
+        <div class="skel sk-box" style="height:110px"></div>
+        <div class="skel sk-box" style="height:150px"></div>
+        <div class="skel sk-box" style="height:90px"></div>
+      </div>
+      <div id="dash-real" style="display:none">
+        <div class="tile">
+          <div class="tile-head">
+            <span class="tile-icn">🐷</span>
+            <div>
+              <div class="tile-title">Retirement</div>
+              <div class="tile-sub">View Details</div>
+            </div>
+          </div>
+        </div>
+        <div class="tile">
+          <div class="tile-head">
+            <span class="tile-icn">🎓</span>
+            <div class="tile-title">Training</div>
+          </div>
+          <div class="empty">
+            <div class="empty-img">📚</div>
+            <h4>Nothing to show here</h4>
+            <p>No courses are currently assigned to you.</p>
+            <a href="#">View in PayFlex Learning ↗</a>
+          </div>
+        </div>
+        <div class="tile">
+          <div class="tile-head">
+            <span class="tile-icn">📅</span>
+            <div class="tile-title">Check stubs timeline</div>
+          </div>
+          <div class="timeline" style="padding:0 4px">
+            <div class="row"><span>Aug 12</span><span class="muted">••••• 🔗</span></div>
+            <div class="row"><span>Aug 5</span><span class="muted">••••• 🔗</span></div>
+            <div class="row"><span>Jul 29</span><span class="muted">••••• 🔗</span></div>
+          </div>
+          <div style="text-align:center;padding-top:10px;color:var(--blue);font-size:14px">View all check stubs</div>
+        </div>
+        <div class="tile">
+          <div class="tile-head">
+            <span class="tile-icn">📊</span>
+            <div class="tile-title">Training</div>
+          </div>
+          <div class="tile-sub">Take me there ↗</div>
+        </div>
+        <div class="tile">
+          <div class="tile-head">
+            <span class="tile-icn">📄</span>
+            <div class="tile-title">Tax Documents</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+            <span style="font-size:28px">📕</span>
+            <span style="font-size:15px">2025 W2</span>
+          </div>
+          <div style="text-align:center;padding-top:14px;color:var(--blue);font-size:14px">View All</div>
+        </div>
+        <div class="tile">
+          <div class="tile-head">
+            <span class="tile-icn">✅</span>
+            <div class="tile-title">Tasks</div>
+          </div>
+          <div class="empty">
+            <div class="empty-img">🏖️</div>
+            <h4>Relax, no new tasks.</h4>
+            <a href="#">View All</a>
+          </div>
+        </div>
+        <div class="tile">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span class="tile-title">Goals</span>
+            <span style="color:var(--blue);font-size:14px;font-weight:500">+ Add</span>
+          </div>
+          <div class="empty">
+            <div class="empty-img">📋</div>
+            <h4>No goals added yet</h4>
+            <a href="#">Add a goal</a>
+          </div>
+        </div>
+        <div class="tile">
+          <div class="tile-title" style="margin-bottom:8px">Upcoming Events</div>
+          <div class="event">
+            <div class="event-date">MAR<br>09</div>
+            <div>🏆 Happy Anniversary!</div>
+          </div>
+          <div class="event">
+            <div class="event-date">JUN<br>28</div>
+            <div>🎂 Happy Birthday!</div>
+          </div>
+        </div>
+        <div class="tile">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span class="tile-title">Conversations</span>
+            <span style="color:var(--blue);font-size:14px;font-weight:500">+ Add</span>
+          </div>
+          <div class="empty">
+            <div class="empty-img">💬</div>
+            <h4>You don't have any notes yet</h4>
+            <a href="#">Get Started</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="page" id="p-profile">
+      <div class="page-title" style="padding:20px 16px 8px">My Profile</div>
+      <div class="tabs">
+        <div class="tab active" onclick="setTab('prof',0)">Personal</div>
+        <div class="tab" onclick="setTab('prof',1)">User</div>
+        <div class="tab" onclick="setTab('prof',2)">Employment</div>
+      </div>
+      <div id="prof0">
+        <div class="prof-card">
+          <button class="edit">Edit</button>
+          <div class="prof-head">
+            <div class="prof-ava">EJ</div>
+            <div>
+              <div style="font-weight:600">Profile Image</div>
+              <div style="color:var(--blue);font-size:14px">Update</div>
+            </div>
+          </div>
+          <div class="row"><label>Legal name</label><span>Edward<br>Johnson</span></div>
+          <div class="row"><label>SSN</label><span>••• •• 3643</span></div>
+          <div class="row"><label>Birth date</label><span>Jun 28, 1964</span></div>
+          <div class="row"><label>Age</label><span>62</span></div>
+          <div class="row"><label>Sex</label><span>Male</span></div>
+          <div class="row"><label>Employee ID</label><span>4319</span></div>
+          <div class="row"><label>Address</label><span>540 Sanderstown Road<br>Franklin, NC 28734<br>United States</span></div>
+          <div class="row"><label>Mobile Phone</label><span>(828) 507-1067</span></div>
+          <div class="row"><label>Home Phone</label><span>(828) 524-3151</span></div>
+          <div class="row"><label>Personal Email</label><span>edward.j@email.com</span></div>
+        </div>
+        <div class="tile">
+          <div style="font-weight:600;margin-bottom:10px">Emergency contacts</div>
+          <div class="ecard">
+            <div class="ava" style="border-radius:50%;display:flex;align-items:center;justify-content:center">HJ</div>
+            <div style="flex:1">
+              <div style="font-weight:600">Johnson, Howard</div>
+              <div class="sub">Parent</div>
+              <div style="font-size:14px;margin-top:2px">(828) 524-3151</div>
+            </div>
+          </div>
+          <div style="margin-top:14px;color:var(--blue);font-size:14px">+ Add contact</div>
+        </div>
+      </div>
+      <div id="prof1" style="display:none">
+        <div class="prof-card">
+          <button class="edit">Edit</button>
+          <div class="row"><label>Username</label><span>EddieJ.4319</span></div>
+          <div class="row"><label>Password</label><span>••••••</span></div>
+          <div class="row"><label>User Phone (Primary)</label><span>(828) 507-1067</span></div>
+          <div class="row"><label>User Phone (Secondary)</label><span>—</span></div>
+          <div class="row"><label>User Email</label><span>edward.j@yahoo.com</span></div>
+        </div>
+        <div class="tile">
+          <div style="font-weight:600;margin-bottom:10px">Security Questions</div>
+          <div style="font-size:14px;color:var(--muted);padding:8px 0;border-bottom:1px solid var(--border)">What was your favorite sport as a child?</div>
+          <div style="font-size:14px;color:var(--muted);padding:8px 0;border-bottom:1px solid var(--border)">What color was your first bicycle?</div>
+          <div style="font-size:14px;color:var(--muted);padding:8px 0;border-bottom:1px solid var(--border)">What model year was your first car?</div>
+          <div style="font-size:14px;color:var(--muted);padding:8px 0">What year did you go to your first music concert?</div>
+          <div style="margin-top:12px;font-size:13px;color:var(--muted)">Receive a verification code by phone only when required (recommended)</div>
+        </div>
+        <div class="tile">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-weight:600">Voice Assistant</span>
+            <button class="edit">Edit</button>
+          </div>
+          <div class="row" style="margin-top:8px"><label>Voice PIN</label><span>••••</span></div>
+        </div>
+      </div>
+      <div id="prof2" style="display:none">
+        <div class="prof-card">
+          <button class="edit">Edit</button>
+          <div style="font-weight:700;margin-bottom:16px">Summary</div>
+          <div class="row"><label>Type</label><span>Full Time</span></div>
+          <div class="row"><label>Organization</label><span>2 Indirect</span></div>
+          <div class="row"><label>Location</label><span>Franklin, NC</span></div>
+          <div class="row"><label>Position</label><span>Worker</span></div>
+          <div class="row"><label>Supervisor</label><span>—</span></div>
+          <div class="row"><label>Officer Type</label><span>—</span></div>
+          <div class="row"><label>Hire Date</label><span>Mar 9, 1992</span></div>
+          <div class="row"><label>Seasonal Employee (ESR)</label><span>No</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAY -->
+    <div class="page" id="p-pay">
+      <div class="page-title" style="padding:20px 16px 8px">My Pay</div>
+      <div class="htabs">
+        <div class="htab active" onclick="setTab('pay',0)">Compensation</div>
+        <div class="htab" onclick="setTab('pay',1)">Pay History</div>
+        <div class="htab" onclick="setTab('pay',2)">Earnings & Deductions</div>
+        <div class="htab" onclick="setTab('pay',3)">Direct Deposit</div>
+        <div class="htab" onclick="setTab('pay',4)">Taxes</div>
+      </div>
+      <div id="pay0" class="pay">
+        <div style="font-weight:700;margin-bottom:14px;font-size:16px">Compensation</div>
+        <div style="margin-bottom:16px">
+          <span style="font-weight:600">Rate 1</span><span class="rate-badge">Default</span>
+        </div>
+        <div class="row"><label>Rate</label><span class="amt">$23.22 hourly</span></div>
+        <div class="row"><label>Standard Pay Period</label><span>—</span></div>
+        <div class="row"><label>Standard Overtime</label><span>—</span></div>
+        <div class="sec-title">Pay Details</div>
+        <div class="row"><label>Pay Frequency</label><span>Weekly</span></div>
+        <div class="sec-title">Calculated Standard Rate</div>
+        <div class="row"><label>Hourly Rate</label><span class="amt">$23.22</span></div>
+        <div class="row"><label>Per Pay Period</label><span>—</span></div>
+        <div class="row"><label>Annualized</label><span>—</span></div>
+        <div class="sec-title">Review</div>
+        <div class="row"><label>Next Review</label><span>—</span></div>
+      </div>
+      <div id="pay1" class="pay" style="display:none">
+        <div style="font-weight:700;margin-bottom:8px">Pay History</div>
+        <div class="hist">
+          <div class="hist-date">Apr 13, 2026</div>
+          <div class="hist-rate">Rate 1 <span style="font-size:13px;color:var(--muted);font-weight:400">Rate - ($23.22)</span></div>
+        </div>
+        <div class="hist">
+          <div class="hist-date">Aug 25, 2025</div>
+          <div class="hist-rate">Rate 1 <span class="rate-badge">Initial Rate</span></div>
+          <div class="sub" style="margin-top:4px">Rate - ($22.76)</div>
+          <div class="sub" style="margin-top:10px">Pay Details<br>Pay Frequency</div>
+        </div>
+      </div>
+      <div id="pay2" class="pay" style="display:none">
+        <div class="info-box">
+          <span style="font-size:16px;line-height:1">ⓘ</span>
+          <span>No mystery here. Earnings and deductions are recurring items on paychecks. In general, earnings add to pay, deductions reduce it and informational items have no effect.</span>
+        </div>
+        <div style="font-weight:700;margin-bottom:10px">Earnings</div>
+        <div class="row"><div><div style="font-weight:500">PX401 ERMTCH</div><div class="sub">03/20/2026 - Ongoing</div></div><span style="text-align:right">Calculated<br><span class="sub">Every Pay Period</span></span></div>
+        <div style="font-weight:700;margin:20px 0 10px">Deductions</div>
+        <div class="row"><div><div style="font-weight:500">DENTAL</div><div class="sub">10/08/2025 - Ongoing</div></div><span class="amt">$11.52</span></div>
+        <div class="row"><div><div style="font-weight:500">HSA</div><div class="sub">10/08/2025 - Ongoing</div></div><span class="amt">$28.85</span></div>
+        <div class="row"><div><div style="font-weight:500">Medical</div><div class="sub">10/08/2025 - Ongoing</div></div><span class="amt">$36.96</span></div>
+        <div class="row"><div><div style="font-weight:500">Short Term Dis</div><div class="sub">10/08/2025 - Ongoing</div></div><span class="amt">$11.97</span></div>
+        <div class="row"><div><div style="font-weight:500">TQ-PX401 EEPRE</div><div class="sub">10/08/2025 - Ongoing</div></div><span>5%</span></div>
+        <div class="row"><div><div style="font-weight:500">VISION</div><div class="sub">10/08/2025 - Ongoing</div></div><span class="amt">$1.81</span></div>
+      </div>
+      <div id="pay3" class="pay" style="display:none">
+        <div class="promo">
+          <h4>PayFlex Pay®</h4>
+          <p>An online account established by Central Bank of Kansas City, Member FDIC.</p>
+          <p>Get a debit Mastercard® and open an optional Savings Account.</p>
+          <button>Get more info ↗</button>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <span style="font-weight:700">Direct deposit accounts</span>
+          <button class="edit">Edit</button>
+        </div>
+        <div class="tile" style="margin:0 0 12px">
+          <div style="font-weight:600">PNC BANK, NA - Checking</div>
+          <div class="row" style="margin-top:6px"><label style="font-size:13px">Account Type</label><span style="font-size:14px">Checking</span></div>
+          <div class="row"><label style="font-size:13px">Routing Number</label><span style="font-size:14px">054000030</span></div>
+          <div class="row"><label style="font-size:13px">Account Number</label><span style="font-size:14px">5322220017</span></div>
+          <div class="row"><label style="font-size:13px">Used For</label><span style="font-size:14px">Net Pay</span></div>
+          <div class="row"><label style="font-size:13px">Amount</label><span style="font-size:14px">Remainder</span></div>
+        </div>
+        <div style="color:var(--blue);font-size:14px">+ Add bank account</div>
+      </div>
+      <div id="pay4" class="pay" style="display:none">
+        <div style="font-weight:700;margin-bottom:10px">Federal</div>
+        <div class="tile" style="margin:0 0 10px;display:flex;justify-content:space-between;align-items:center;padding:14px">
+          <div>
+            <div style="font-weight:500">Federal Income Tax - Resident</div>
+            <div class="sub">Taxable, Single, 0</div>
+          </div>
+          <span class="muted" style="font-size:20px">›</span>
+        </div>
+        <div style="font-weight:700;margin:16px 0 10px">State</div>
+        <div class="tile" style="margin:0 0 10px;display:flex;justify-content:space-between;align-items:center;padding:14px">
+          <div>
+            <div style="font-weight:500">North Carolina State Income Tax - Resident</div>
+            <div class="sub">Taxable, Single, 0, Worked 100%</div>
+          </div>
+          <span class="muted" style="font-size:20px">›</span>
+        </div>
+        <div class="tile" style="margin:0;display:flex;justify-content:space-between;align-items:center;padding:14px">
+          <div>
+            <div style="font-weight:500">North Carolina State Unemployment</div>
+            <div class="sub">Taxable</div>
+          </div>
+          <span class="muted" style="font-size:20px">›</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- DOCUMENTS -->
+    <div class="page" id="p-documents">
+      <div class="page-title" style="padding:20px 16px">My Documents</div>
+      <div class="center-msg">
+        <div style="font-size:64px;margin-bottom:16px;opacity:.2">📄</div>
+        <h3>No Documents Yet</h3>
+        <p>Your important documents will live here.</p>
+      </div>
+    </div>
+
+    <!-- PERKS -->
+    <div class="page" id="p-perks">
+      <div class="perk-hero">
+        <h2>My Perks</h2>
+        <p>Extra services provided through your employer.</p>
+      </div>
+      <div class="perk">
+        <div class="perk-logo" style="background:#e3f2fd;color:var(--blue)">BENEFITS<br>ME</div>
+        <div class="perk-info">
+          <h4>BenefitsMe</h4>
+          <p>Shop now, pay later</p>
+          <p>You're approved, up to $5,000. Pay interest-free via payroll deduction.</p>
+          <a href="#" class="perk-btn">Get Started ↗</a>
+        </div>
+      </div>
+      <div class="perk">
+        <div class="perk-logo" style="background:#fff0f3;color:#e91e63;font-size:20px">G</div>
+        <div class="perk-info">
+          <h4>GoSkills</h4>
+          <p>Build new skills with flexible, bite-sized courses.</p>
+          <a href="#" class="perk-btn">Get Started ↗</a>
+        </div>
+      </div>
+      <div class="perk">
+        <div class="perk-logo" style="background:#e8f5e9;color:#2e7d32;font-size:14px">perpay</div>
+        <div class="perk-info">
+          <h4>Perpay</h4>
+          <p>Unlock up to $1,000 to shop top brands over time.</p>
+          <a href="#" class="perk-btn">Get Started ↗</a>
+        </div>
+      </div>
+      <div class="perk">
+        <div class="perk-logo" style="background:#e3f2fd;color:#1565c0;font-size:12px">ALL<br>STATE</div>
+        <div class="perk-info">
+          <h4>Allstate Auto Insurance</h4>
+          <p>Get a free personalized auto insurance quote.</p>
+          <a href="#" class="perk-btn">Get Started ↗</a>
+        </div>
+      </div>
+      <div class="perk">
+        <div class="perk-logo" style="background:#fff3e0;color:#ef6c00;font-size:12px">ALL<br>STATE</div>
+        <div class="perk-info">
+          <h4>Allstate Home and Renters Insurance</h4>
+          <p>Get a free personalized home insurance quote.</p>
+          <a href="#" class="perk-btn">Get Started ↗</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOCATIONS -->
+    <div class="page" id="p-locations">
+      <div class="page-title" style="padding:20px 16px 12px">Work Locations</div>
+      <div style="padding:0 16px 12px">
+        <input type="text" placeholder="Search locations" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-size:14px">
+      </div>
+      <div class="loc-card">
+        <div class="loc-img">🏢</div>
+        <div class="loc-info">
+          <h4>Franklin, NC</h4>
+          <p>66 Van Raalte St<br>Franklin, NC 28734-2760</p>
+        </div>
+      </div>
+      <div class="loc-card">
+        <div class="loc-img" style="background:#e0f2f1">🏭</div>
+        <div class="loc-info">
+          <h4>Rabun Gap, GA</h4>
+          <p>400 Kellys Creek Rd<br>Rabun Gap, GA 30568-2211</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PERFORMANCE -->
+    <div class="page" id="p-performance">
+      <div class="page-title" style="padding:20px 16px 12px">Performance</div>
+      <div class="tile" style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:600">My Performance</div>
+          <div class="sub">View my reviews and job performance.</div>
+        </div>
+        <span class="muted" style="font-size:20px">›</span>
+      </div>
+      <div class="tile">
+        <div style="font-weight:600;margin-bottom:10px">Reviews to Complete</div>
+        <div class="center-msg" style="padding:24px">
+          <div style="font-size:48px;margin-bottom:8px;opacity:.25">📋</div>
+          <h3>Nothing to do yet.</h3>
+          <p class="sub">When a review is assigned to you, you'll find it here.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- RETIREMENT -->
+    <div class="page" id="p-retirement">
+      <div style="padding:16px">
+        <div style="font-size:17px;font-weight:700">Lander Tubular Products Inc 401(k) Plan</div>
+      </div>
+      <div class="htabs">
+        <div class="htab active" onclick="setTab('ret',0)">Summary</div>
+        <div class="htab" onclick="setTab('ret',1)">Contributions</div>
+        <div class="htab" onclick="setTab('ret',2)">Investments</div>
+      </div>
+      <div id="ret0">
+        <div class="ret-bal">
+          <div style="display:flex;justify-content:space-around;margin-bottom:16px">
+            <div>
+              <div class="num">$266,751.70</div>
+              <div class="lbl">Current balance</div>
+            </div>
+            <div>
+              <div class="num">$266,751.70</div>
+              <div class="lbl">Vested balance</div>
+            </div>
+          </div>
+          <div class="donut-wrap">
+            <svg width="200" height="200" viewBox="0 0 200 200">
+              <circle cx="100" cy="100" r="82" fill="none" stroke="#e0e0e0" stroke-width="18"/>
+              <circle cx="100" cy="100" r="82" fill="none" stroke="#5c6bc0" stroke-width="18" stroke-dasharray="515" stroke-dashoffset="0" stroke-linecap="round"/>
+            </svg>
+            <div class="donut-center">
+              <div class="big">$266,751.70</div>
+              <div class="sml">Total</div>
+            </div>
+          </div>
+          <div style="text-align:left;padding:0 8px;font-size:14px;margin-top:8px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span class="dot"></span> From you <span style="margin-left:auto;font-weight:600">$266,751.70</span></div>
+            <div class="sub">Last contribution <span style="margin-left:4px">$46.44 on Aug 11, 2026</span></div>
+          </div>
+        </div>
+        <div style="padding:16px">
+          <div style="font-weight:700;margin-bottom:8px">Yearly rate of return</div>
+          <div style="display:flex;gap:24px;font-size:13px;color:var(--muted);margin-bottom:6px">
+            <span>As of Jul 31</span><span>As of Aug 11</span>
+          </div>
+          <div class="neg" style="font-size:32px;font-weight:700">-5.08%</div>
+          <div class="sub">Jan 1, 2026 - Jul 31, 2026</div>
+        </div>
+        <div class="tile">
+          <div style="font-weight:600;margin-bottom:8px">Income projection</div>
+          <div class="sub" style="margin-bottom:8px">Per month</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+            <div style="width:60px;height:60px;border-radius:50%;border:8px solid #ff9800;border-top-color:transparent;transform:rotate(-45deg)"></div>
+            <div>
+              <div style="font-size:13px">You'd need: $2,808</div>
+              <div style="font-size:13px">You'd have: $997</div>
+              <div style="font-size:13px;color:var(--muted)">$1,811 short of goal</div>
+            </div>
+          </div>
+          <button class="edit" style="float:none;margin-top:4px">Calculate</button>
+          <div style="clear:both"></div>
+        </div>
+        <div class="tile">
+          <div style="font-weight:600;margin-bottom:10px">Beneficiaries</div>
+          <div class="center-msg" style="padding:16px">
+            <div style="font-size:40px;margin-bottom:8px;opacity:.25">👤</div>
+            <p style="font-size:13px">You currently have no beneficiaries.</p>
+            <button style="margin-top:12px;padding:8px 16px;border:1px solid var(--blue);color:var(--blue);background:#fff;border-radius:4px;font-size:13px;cursor:pointer">Add beneficiaries</button>
+          </div>
+        </div>
+      </div>
+      <div id="ret1" style="display:none">
+        <div style="padding:24px 16px;text-align:center">
+          <div class="donut-wrap" style="width:180px;height:180px">
+            <svg width="180" height="180" viewBox="0 0 180 180">
+              <circle cx="90" cy="90" r="74" fill="none" stroke="#e0e0e0" stroke-width="16"/>
+              <circle cx="90" cy="90" r="74" fill="none" stroke="#5c6bc0" stroke-width="16" stroke-dasharray="465" stroke-dashoffset="70" stroke-linecap="round"/>
+            </svg>
+            <div class="donut-center">
+              <div class="big">$266,751.70</div>
+              <div class="sml">Current Value</div>
+            </div>
+          </div>
+        </div>
+        <div class="tile">
+          <div class="row"><label>Rollover</label><span style="text-align:right">$220,094.06<br><span class="sub">82.51%</span></span></div>
+          <div class="row"><label>Employee Pre-Tax</label><span style="text-align:right">$43,452.19<br><span class="sub">16.29%</span></span></div>
+          <div class="row"><label>Roth 401(k)</label><span style="text-align:right">$3,205.45<br><span class="sub">1.20%</span></span></div>
+        </div>
+        <div style="padding:16px">
+          <div style="font-weight:700;margin-bottom:10px">Total per pay period</div>
+          <div class="row"><label>Pretax</label><span>5%</span></div>
+          <div class="row"><label>Roth</label><span>0%</span></div>
+          <div class="row"><label>Pretax catchup</label><span>0%</span></div>
+          <div class="row"><label>Roth catchup</label><span>0%</span></div>
+          <div class="row"><label>Company match</label><span style="text-align:right">When eligible<br><span class="sub">100%</span></span></div>
+        </div>
+        <div class="tile" style="display:flex;align-items:center;gap:12px">
+          <div style="font-size:24px">🔔</div>
+          <div>
+            <div style="font-weight:600">Auto Increase</div>
+            <div class="sub">Auto Increase Preferences</div>
+          </div>
+        </div>
+        <div class="tile" style="display:flex;align-items:center;gap:12px">
+          <div style="font-size:24px">📊</div>
+          <div>
+            <div style="font-weight:600">Roth analysis tool</div>
+          </div>
+        </div>
+      </div>
+      <div id="ret2" style="display:none">
+        <div style="padding:16px">
+          <div style="font-weight:700;margin-bottom:10px">Investment insights</div>
+          <div style="margin-bottom:12px">
+            <button class="perf-btn">Performance</button>
+          </div>
+          <div style="text-align:center;margin-bottom:16px">
+            <div style="font-size:22px;font-weight:700">$266,751.70</div>
+            <div class="sml">Current value</div>
+          </div>
+          <div style="font-weight:600;margin-bottom:10px">Asset Allocation</div>
+          <div class="row"><label>Stock</label><span>14.3%</span></div>
+          <div class="row"><label>Bond</label><span>14.3%</span></div>
+          <div class="row"><label>Money market</label><span>0.5%</span></div>
+          <div style="font-weight:600;margin:16px 0 10px">Investments</div>
+          <div class="row"><div><div style="font-weight:500">Vanguard 500 Index Admiral</div><div class="sub">YTD Change 14.3%</div></div><span>70.2%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fab">?</div>
+  </div>
+</div>
+
+<script>
+  // Login
+  function ckLogin(){
+    const u=document.getElementById('lu').value,p=document.getElementById('lp').value;
+    document.querySelector('#p-login .btn').classList.toggle('on',u&&p);
+  }
+  function togEye(){
+    const i=document.getElementById('lp');
+    i.type=i.type==='password'?'text':'password';
+  }
+  function doLogin(){
+    document.getElementById('p-login').classList.remove('active');
+    document.getElementById('shell').style.display='block';
+    setTimeout(()=>{
+      document.getElementById('dash-sk').style.display='none';
+      document.getElementById('dash-real').style.display='block';
+    },1400);
+  }
+
+  // Drawer
+  function toggleDrawer(){
+    document.getElementById('drawer').classList.toggle('open');
+    document.getElementById('dover').classList.toggle('open');
+  }
+
+  // Navigation
+  const map={dashboard:0,profile:1,pay:2,documents:3,perks:4,locations:5,performance:6,retirement:7};
+  function go(page){
+    toggleDrawer();
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('p-'+page).classList.add('active');
+    document.querySelectorAll('.drawer-item').forEach((d,i)=>{
+      d.classList.toggle('active',i===map[page]);
+    });
+  }
+
+  // Tabs
+  function setTab(group,n){
+    if(group==='prof'){
+      document.querySelectorAll('#p-profile .tab').forEach((t,i)=>t.classList.toggle('active',i===n));
+      document.getElementById('prof0').style.display=n===0?'block':'none';
+      document.getElementById('prof1').style.display=n===1?'block':'none';
+      document.getElementById('prof2').style.display=n===2?'block':'none';
+    }
+    if(group==='pay'){
+      document.querySelectorAll('#p-pay .htab').forEach((t,i)=>t.classList.toggle('active',i===n));
+      for(let i=0;i<5;i++) document.getElementById('pay'+i).style.display=i===n?'block':'none';
+    }
+    if(group==='ret'){
+      document.querySelectorAll('#p-retirement .htab').forEach((t,i)=>t.classList.toggle('active',i===n));
+      document.getElementById('ret0').style.display=n===0?'block':'none';
+      document.getElementById('ret1').style.display=n===1?'block':'none';
+      document.getElementById('ret2').style.display=n===2?'block':'none';
+    }
+  }
+</script>
+</body>
+</html>
