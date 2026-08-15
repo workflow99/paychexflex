@@ -24,7 +24,7 @@ function AdminPasswordGate({ onUnlock, onBack }) {
   return (
     <div className="min-h-screen bg-app-bg">
       <div className="bg-[#1a2332] text-white px-4 h-14 flex items-center justify-between sticky top-0 z-100">
-        <span className="font-semibold">Paycheck Flex Admin</span>
+        <span className="font-semibold">Paychex Flex Admin</span>
         <button onClick={onBack} className="bg-transparent border-none text-white/80 cursor-pointer text-sm">
           Back to app
         </button>
@@ -172,7 +172,7 @@ export default function AdminPanel() {
   return (
     <div className="min-h-screen bg-app-bg">
       <div className="bg-[#1a2332] text-white px-4 h-14 flex items-center justify-between sticky top-0 z-100">
-        <span className="font-semibold">Paycheck Flex Admin</span>
+        <span className="font-semibold">Paychex Flex Admin</span>
         <div className="flex items-center gap-4 text-sm">
           <button onClick={() => navigate('/dashboard')} className="bg-transparent border-none text-white/80 cursor-pointer">
             Back to app

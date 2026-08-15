@@ -87,7 +87,7 @@ export default function Dashboard() {
             subtitle="No courses are currently assigned to you."
             linkText={
               <>
-                View in Paycheck Flex Learning <IconExternalLink className="w-3.5 h-3.5" />
+                View in Paychex Flex Learning <IconExternalLink className="w-3.5 h-3.5" />
               </>
             }
             linkStyle="button"

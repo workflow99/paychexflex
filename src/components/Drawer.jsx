@@ -43,7 +43,7 @@ export default function Drawer({ open, onClose, collapsed, onToggleCollapse }) {
         <div className="bg-brand text-white px-4 py-4.5 flex items-center justify-between shrink-0">
           {!collapsed && (
             <span className="text-xl italic tracking-wide uppercase">
-              <span className="font-extrabold">Paycheck</span> <span className="font-semibold">Flex</span>
+              <span className="font-extrabold">Paychex</span> <span className="font-semibold">Flex</span>
               <sup className="text-[9px] not-italic leading-none relative top-[-8px] ml-0.5">&reg;</sup>
             </span>
           )}

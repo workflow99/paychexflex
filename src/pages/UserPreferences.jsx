@@ -25,7 +25,7 @@ function General() {
       <Tile className="!mx-0">
         <div className="font-semibold mb-1">Default Language</div>
         <p className="text-[13px] text-app-muted mb-4">
-          Select which language you would like to automatically see when you log into Paycheck Flex.
+          Select which language you would like to automatically see when you log into Paychex Flex.
         </p>
         <div className="border-t border-app-border pt-4">
           <label className="block text-[13px] text-app-muted mb-1.5">Language</label>

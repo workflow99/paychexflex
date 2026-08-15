@@ -127,7 +127,7 @@ function DirectDeposit() {
   return (
     <div className="p-4">
       <Tile className="!my-0 mb-5">
-        <h4 className="mb-2 text-lg font-normal">Paycheck Flex Pay&reg;</h4>
+        <h4 className="mb-2 text-lg font-normal">Paychex Flex Pay&reg;</h4>
         <p className="text-[13px] text-app-muted mb-3">
           an online account established by Central Bank of Kansas City, Member FDIC
         </p>
@@ -171,8 +171,8 @@ function DirectDeposit() {
         </div>
       </Tile>
       <p className="text-[11px] text-app-muted leading-relaxed mt-5">
-        1. The Paycheck Flex Pay Deposit Account is established by Central Bank of Kansas City, Member FDIC. The
-        Paycheck Flex Pay Debit Mastercard is issued by Central Bank of Kansas City pursuant to a license by Mastercard
+        1. The Paychex Flex Pay Deposit Account is established by Central Bank of Kansas City, Member FDIC. The
+        Paychex Flex Pay Debit Mastercard is issued by Central Bank of Kansas City pursuant to a license by Mastercard
         International Incorporated. Mastercard is a registered trademark, and the circles design is a trademark
         of Mastercard International Incorporated. Certain fees, terms, and conditions are associated with the
         approval, maintenance, and use of the Deposit Account and Card. If you have any questions regarding your

@@ -36,7 +36,7 @@ export default function Login() {
       <div className="mx-auto min-h-screen w-full bg-app-card md:min-h-0 md:max-w-md md:rounded-xl md:shadow-lg md:overflow-hidden">
         <div className="bg-brand pt-7 pb-8 px-4 text-center text-white">
           <div className="text-[28px] italic tracking-wide uppercase">
-            <span className="font-extrabold">Paycheck</span> <span className="font-semibold">Flex</span>
+            <span className="font-extrabold">Paychex</span> <span className="font-semibold">Flex</span>
             <sup className="text-[11px] not-italic leading-none relative top-[-11px] ml-0.5">&reg;</sup>
           </div>
         </div>
@@ -83,7 +83,7 @@ export default function Login() {
             <a href="#" className="text-brand no-underline">Forgot password</a>
           </div>
           <div className="text-center mt-6 text-sm text-app-muted">
-            New to Paycheck Flex? <a href="#" className="text-brand font-semibold no-underline">Sign up</a>
+            New to Paychex Flex? <a href="#" className="text-brand font-semibold no-underline">Sign up</a>
           </div>
           <div className="mt-8 text-[11px] text-app-muted leading-relaxed text-center">
             By continuing, you agree to our <a href="#" className="text-brand">Terms of Use</a> and{' '}

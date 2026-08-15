@@ -102,7 +102,7 @@ function UsersIcon(props) {
 
 const categories = [
   { Icon: VideoIcon, label: 'Video training and guides' },
-  { Icon: StarBadgeIcon, label: 'Get to know Paycheck Flex' },
+  { Icon: StarBadgeIcon, label: 'Get to know Paychex Flex' },
   { Icon: TagIcon, label: 'My Perks', to: '/perks' },
   { Icon: DocIcon, label: 'Approvals' },
   { Icon: DocIcon, label: 'Documents', to: '/documents' },

@@ -86,8 +86,8 @@ export default function Perks() {
             </a>
           </div>
           <p className="text-[11px] text-app-muted leading-relaxed px-4 pb-6">
-            1. The Paycheck Pay Deposit Account is established by Central Bank of Kansas City, Member FDIC. The
-            Paycheck Pay Debit Mastercard is issued by Central Bank of Kansas City pursuant to a license by
+            1. The Paychex Pay Deposit Account is established by Central Bank of Kansas City, Member FDIC. The
+            Paychex Pay Debit Mastercard is issued by Central Bank of Kansas City pursuant to a license by
             Mastercard International Incorporated. Mastercard is a registered trademark, and the circles design is
             a trademark of Mastercard International Incorporated. Certain fees, terms, and conditions are
             associated with the approval, maintenance, and use of the Deposit Account and Card. If you have any

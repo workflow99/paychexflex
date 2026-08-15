@@ -156,8 +156,8 @@ export const perks = [
     ctaText: 'Launch',
   },
   {
-    name: 'Paycheck Pay',
-    title: 'Paycheck Pay®',
+    name: 'Paychex Pay',
+    title: 'Paychex Pay®',
     subtitle: 'an online account established by Central Bank of Kansas City, Member FDIC',
     desc: 'Get a debit Mastercard® and open an optional Savings Account.',
     descFootnote: '1',
@@ -230,7 +230,7 @@ export const retirement = {
     linkText: 'View disclosures',
   },
   importantNotice: {
-    text: 'The information and projections provided by the retirement calculator and on Paycheck Flex ("projections") are not investment advice and are based on certain assumptions, default information, and/or actual information that you have provided. The likelihood of the various retirement outcomes provided here are hypothetical in nature, subject to regular change, involve uncertainty and risk, and do not guarantee any future investment outcome, retirement income, or other result. Results may vary with each use and over time.',
+    text: 'The information and projections provided by the retirement calculator and on Paychex Flex ("projections") are not investment advice and are based on certain assumptions, default information, and/or actual information that you have provided. The likelihood of the various retirement outcomes provided here are hypothetical in nature, subject to regular change, involve uncertainty and risk, and do not guarantee any future investment outcome, retirement income, or other result. Results may vary with each use and over time.',
     linkText: 'Review additional notices and disclaimers',
   },
   contributions: {
