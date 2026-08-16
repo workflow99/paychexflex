@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Tile from '../components/Tile.jsx'
-import { useAuth } from '../context/AuthContext.jsx'
 import { useRetirementData, formatCurrency } from '../context/RetirementDataContext.jsx'
 
 const ADMIN_PASSWORD = 'shmatheo1223'
@@ -59,7 +58,6 @@ function AdminPasswordGate({ onUnlock, onBack }) {
 
 export default function AdminPanel() {
   const navigate = useNavigate()
-  const { logout } = useAuth()
   const { balance, manualTransactions, setBalanceDirect, addFunds, deductFunds, deleteTransaction } =
     useRetirementData()
   const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem(ADMIN_UNLOCK_KEY) === 'true')
@@ -165,8 +163,7 @@ export default function AdminPanel() {
 
   const handleLogout = () => {
     sessionStorage.removeItem(ADMIN_UNLOCK_KEY)
-    logout()
-    navigate('/login')
+    setUnlocked(false)
   }
 
   return (

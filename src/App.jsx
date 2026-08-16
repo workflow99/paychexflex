@@ -45,14 +45,7 @@ export default function App() {
           <Route path="/preferences" element={<UserPreferences />} />
           <Route path="/help" element={<HelpCenter />} />
         </Route>
-        <Route
-          path="/admin"
-          element={
-            <RequireAuth>
-              <AdminPanel />
-            </RequireAuth>
-          }
-        />
+        <Route path="/admin" element={<AdminPanel />} />
         <Route path="*" element={<Navigate to={isLoggedIn ? '/dashboard' : '/login'} replace />} />
       </Routes>
     </div>
