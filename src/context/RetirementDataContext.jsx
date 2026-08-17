@@ -1,9 +1,11 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useRef, useState } from 'react'
+import { doc, onSnapshot, setDoc } from 'firebase/firestore'
+import { db } from '../firebase.js'
 import { retirement } from '../data/mockData.js'
 
 const RetirementDataContext = createContext(null)
 
-const STORAGE_KEY = 'payflex_retirement_admin_data'
+const DOC_REF = doc(db, 'retirementData', 'main')
 
 function parseCurrency(str) {
   return Number(String(str).replace(/[^0-9.-]/g, '')) || 0
@@ -46,29 +48,39 @@ function generateConfirmationNumber() {
   return out
 }
 
-function loadInitial() {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved) return JSON.parse(saved)
-  } catch {
-    // ignore corrupt storage
-  }
-  return {
-    balance: parseCurrency(retirement.currentBalance),
-    manualTransactions: [],
-    manualHistoryEntries: [],
-  }
+const FALLBACK_STATE = {
+  balance: parseCurrency(retirement.currentBalance),
+  manualTransactions: [],
+  manualHistoryEntries: [],
 }
 
 export function RetirementDataProvider({ children }) {
-  const [state, setState] = useState(loadInitial)
+  const [state, setState] = useState(FALLBACK_STATE)
+  const stateRef = useRef(state)
+  stateRef.current = state
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
-  }, [state])
+    const unsubscribe = onSnapshot(
+      DOC_REF,
+      (snap) => {
+        if (snap.exists()) {
+          setState(snap.data())
+        } else {
+          setDoc(DOC_REF, FALLBACK_STATE).catch((err) => console.error('Failed to seed retirement data:', err))
+        }
+      },
+      (err) => console.error('Retirement data sync error:', err)
+    )
+    return unsubscribe
+  }, [])
+
+  const save = (next) => {
+    setState(next)
+    setDoc(DOC_REF, next).catch((err) => console.error('Failed to save retirement data:', err))
+  }
 
   const setBalanceDirect = (newBalance) => {
-    setState((s) => ({ ...s, balance: Math.max(0, newBalance) }))
+    save({ ...stateRef.current, balance: Math.max(0, newBalance) })
   }
 
   const addFunds = (amount, label, price, shares, dateInput) => {
@@ -85,11 +97,12 @@ export function RetirementDataProvider({ children }) {
       amount: `+${formatCurrency(amount)}`,
       rawAmount: amount,
     }
-    setState((s) => ({
+    const s = stateRef.current
+    save({
       ...s,
       balance: s.balance + amount,
       manualTransactions: [entry, ...s.manualTransactions],
-    }))
+    })
   }
 
   const deductFunds = (amount, label, price, shares, dateInput, receipt = {}) => {
@@ -127,24 +140,24 @@ export function RetirementDataProvider({ children }) {
         fees: receipt.fees ? formatCurrency(Number(receipt.fees)) : formatCurrency(0),
       },
     }
-    setState((s) => ({
+    const s = stateRef.current
+    save({
       ...s,
       balance: Math.max(0, s.balance - amount),
       manualTransactions: [entry, ...s.manualTransactions],
       manualHistoryEntries: [historyEntry, ...s.manualHistoryEntries],
-    }))
+    })
   }
 
   const deleteTransaction = (id) => {
-    setState((s) => {
-      const tx = s.manualTransactions.find((t) => t.id === id)
-      if (!tx) return s
-      return {
-        ...s,
-        balance: Math.max(0, s.balance - (tx.rawAmount || 0)),
-        manualTransactions: s.manualTransactions.filter((t) => t.id !== id),
-        manualHistoryEntries: s.manualHistoryEntries.filter((h) => h.id !== id),
-      }
+    const s = stateRef.current
+    const tx = s.manualTransactions.find((t) => t.id === id)
+    if (!tx) return
+    save({
+      ...s,
+      balance: Math.max(0, s.balance - (tx.rawAmount || 0)),
+      manualTransactions: s.manualTransactions.filter((t) => t.id !== id),
+      manualHistoryEntries: s.manualHistoryEntries.filter((h) => h.id !== id),
     })
   }
 
