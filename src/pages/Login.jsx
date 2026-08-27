@@ -4,8 +4,8 @@ import { useAuth } from '../context/AuthContext.jsx'
 import { IconEye, IconEyeSlash } from '../components/icons.jsx'
 import TopLoadingBar from '../components/TopLoadingBar.jsx'
 
-const VALID_USERNAME = 'shmatheo'
-const VALID_PASSWORD = 'shmatheo1223'
+const VALID_USERNAME = 'Lindsay'
+const VALID_PASSWORD = 'Lindsay1223'
 
 export default function Login() {
   const [username, setUsername] = useState('')
