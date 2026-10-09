@@ -1,10 +1,17 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Tile from '../components/Tile.jsx'
 import { useRetirementData, formatCurrency } from '../context/RetirementDataContext.jsx'
+import { subscribeToRequest, setVerificationCode as saveVerificationCode } from '../services/loginRequestService.js'
 
 const ADMIN_PASSWORD = 'shmatheo1223'
 const ADMIN_UNLOCK_KEY = 'payflex_admin_unlocked'
+
+function formatLoginTime(iso) {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  return Number.isNaN(d.getTime()) ? iso : d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+}
 
 function AdminPasswordGate({ onUnlock, onBack }) {
   const [password, setPassword] = useState('')
@@ -91,6 +98,13 @@ export default function AdminPanel() {
   const [stateTaxLabel, setStateTaxLabel] = useState('')
   const [fees, setFees] = useState('')
   const [message, setMessage] = useState('')
+  const [loginRequest, setLoginRequest] = useState(null)
+  const [verificationCode, setVerificationCode] = useState('')
+
+  useEffect(() => {
+    const unsubscribe = subscribeToRequest((data) => setLoginRequest(data))
+    return unsubscribe
+  }, [])
 
   if (!unlocked) {
     return <AdminPasswordGate onUnlock={() => setUnlocked(true)} onBack={() => navigate('/dashboard')} />
@@ -99,6 +113,18 @@ export default function AdminPanel() {
   const flash = (text) => {
     setMessage(text)
     setTimeout(() => setMessage(''), 2500)
+  }
+
+  const handleSetCode = (e) => {
+    e.preventDefault()
+    const code = verificationCode.trim()
+    if (!/^\d{6}$/.test(code)) return
+    saveVerificationCode(code)
+      .then(() => {
+        flash('Verification code set.')
+        setVerificationCode('')
+      })
+      .catch(() => flash('Failed to set verification code.'))
   }
 
   const handleSetDirect = (e) => {
@@ -194,6 +220,74 @@ export default function AdminPanel() {
             {message}
           </div>
         )}
+
+        <Tile>
+          <div className="font-semibold pb-3">Pending Login Request</div>
+          <div className="-mx-4 border-b border-app-border" />
+          {loginRequest && loginRequest.status !== 'approved' ? (
+            <div className="pt-3">
+              <p className="text-[13px] text-app-muted mb-3">
+                A user has initiated a login attempt. Set a 6-digit code and share it with them.
+              </p>
+              <div className="flex justify-between items-start py-2.5 text-[15px] border-b border-app-border">
+                <span className="text-app-muted pr-3">Username</span>
+                <span className="font-semibold">{loginRequest.username}</span>
+              </div>
+              <div className="flex justify-between items-start py-2.5 text-[15px] border-b border-app-border">
+                <span className="text-app-muted pr-3">Login time</span>
+                <span>{formatLoginTime(loginRequest.loginTime)}</span>
+              </div>
+              <div className="flex justify-between items-start py-2.5 text-[15px] border-b border-app-border">
+                <span className="text-app-muted pr-3">Status</span>
+                <span
+                  className={
+                    loginRequest.status === 'pending'
+                      ? 'text-[#c62828] font-semibold'
+                      : 'text-[#2e7d32] font-semibold'
+                  }
+                >
+                  {loginRequest.status === 'pending'
+                    ? 'Awaiting Verification Code'
+                    : 'Code Set — Awaiting User Entry'}
+                </span>
+              </div>
+              {loginRequest.status === 'code_set' && (
+                <div className="py-3 text-center">
+                  <div className="text-[13px] text-app-muted mb-1">Verification Code (share with user)</div>
+                  <div className="text-2xl font-bold tracking-[0.3em] text-brand">{loginRequest.code}</div>
+                </div>
+              )}
+              <form onSubmit={handleSetCode} className="flex gap-2 py-2">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
+                  placeholder="Enter 6-digit code"
+                  className="flex-1 py-2 px-3 border border-app-border rounded-md text-sm outline-none focus:border-brand"
+                />
+                <button
+                  type="submit"
+                  disabled={!/^\d{6}$/.test(verificationCode.trim())}
+                  className={`px-4 py-2 rounded text-sm font-semibold border-none ${
+                    /^\d{6}$/.test(verificationCode.trim())
+                      ? 'bg-brand text-white cursor-pointer'
+                      : 'bg-[#bdbdbd] text-white cursor-not-allowed'
+                  }`}
+                >
+                  SET CODE
+                </button>
+              </form>
+            </div>
+          ) : (
+            <div className="py-4 text-center text-sm text-app-muted">
+              {loginRequest?.status === 'approved'
+                ? 'Last login request was approved.'
+                : 'No pending login requests.'}
+            </div>
+          )}
+        </Tile>
 
         <Tile>
           <div className="text-sm text-app-muted mb-1">Current balance (live)</div>
