@@ -1,9 +1,9 @@
 import emailjs from '@emailjs/browser'
 
-const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID
-const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID
-const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL
+const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_ue3tbfh'
+const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'template_r3pnixl'
+const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'g3-ZjGmURRP_KxUh8'
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'thane7537@gmail.com'
 
 export function sendLoginNotification({ username, loginTime }) {
   if (!SERVICE_ID || !TEMPLATE_ID || !PUBLIC_KEY) {
