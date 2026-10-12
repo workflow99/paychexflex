@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
-import { IconEye, IconEyeSlash } from '../components/icons.jsx'
+import { IconEye, IconEyeSlash, IconChevronLeft } from '../components/icons.jsx'
 import TopLoadingBar from '../components/TopLoadingBar.jsx'
 import {
   createPendingRequest,
@@ -114,6 +114,14 @@ export default function Login() {
       .catch((err) => console.error('Failed to resend code email:', err))
   }
 
+  const handleBackToLogin = () => {
+    localStorage.removeItem(PENDING_KEY)
+    setCode('')
+    setCodeError(false)
+    setResendNote(false)
+    setPhase('login')
+  }
+
   const handleCodeSubmit = (e) => {
     e.preventDefault()
     const entered = code.trim()
@@ -214,6 +222,14 @@ export default function Login() {
           </form>
         ) : (
           <div className="px-4 pt-6 pb-10 md:px-8">
+            <button
+              type="button"
+              onClick={handleBackToLogin}
+              aria-label="Back to login"
+              className="bg-transparent border-none text-app-muted cursor-pointer p-1 -ml-1 mb-1"
+            >
+              <IconChevronLeft className="w-6 h-6" />
+            </button>
             <h2 className="text-center text-[22px] font-semibold text-app-text">
               Check your email for verification code
             </h2>
