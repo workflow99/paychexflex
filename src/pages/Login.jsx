@@ -262,7 +262,7 @@ export default function Login() {
               )}
               {resendNote && (
                 <p className="mt-[10px] text-[13px] text-[#2e7d32]">
-                  A new login request was sent to the administrator.
+                  Code sent.
                 </p>
               )}
 
